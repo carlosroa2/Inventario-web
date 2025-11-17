@@ -8,11 +8,11 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-  <div class="container" style="max-width: 400px; text-align: center; margin-top: 80px;">
+  <div class="container" style="max-width: 400px; text-align: center; margin-top: 80px; animation: fadeIn 0.5s;">
     <h1 style="margin-bottom: 24px; color:#0b63d6;">Inventario</h1>
     <p style="margin-bottom: 32px; color:#555;">Inicia sesión con tu cuenta de Google</p>
 
-    <!-- Google Sign-In button -->
+    <!-- Google Sign-In -->
     <div id="g_id_onload"
          data-client_id="804049595544-tdv9dphuifeudaf9mfhg72r2tpiun80q.apps.googleusercontent.com"
          data-login_uri="app.html"
@@ -29,9 +29,12 @@
 
     <p style="margin-top: 24px; font-size:14px; color:#777;">Solo cuentas autorizadas de la organización</p>
   </div>
-</body>
-</html>
 
-</script>
+  <style>
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(-10px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+  </style>
 </body>
 </html>
