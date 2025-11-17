@@ -6,6 +6,41 @@
   <title>Inventario — Login</title>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      margin:0;
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #0b63d6, #3ea1f1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: #fff;
+    }
+    .container {
+      background: rgba(255,255,255,0.1);
+      padding: 40px;
+      border-radius: 16px;
+      text-align: center;
+      min-width: 300px;
+      animation: fadeIn 0.7s ease-out;
+    }
+    h1 {
+      margin-bottom: 16px;
+      font-size: 28px;
+    }
+    p {
+      margin-bottom: 32px;
+      font-size: 14px;
+    }
+    #buttonDiv {
+      margin-bottom: 24px;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
   <main class="container">
@@ -21,7 +56,7 @@
 const CLIENT_ID = "804049595544-tdv9dphuifeudaf9mfhg72r2tpiun80q.apps.googleusercontent.com";
 
 function handleCredentialResponse(response) {
-  // Guarda el JWT en sessionStorage y redirige
+  // Guarda el JWT y redirige al app.html
   sessionStorage.setItem('g_cred', response.credential);
   window.location.href = 'app.html';
 }
@@ -33,10 +68,11 @@ window.onload = () => {
   });
   google.accounts.id.renderButton(
     document.getElementById('buttonDiv'),
-    { theme: 'outline', size: 'large' } // customization
+    { theme: 'outline', size: 'large' }
   );
-  google.accounts.id.prompt(); // optional
+  google.accounts.id.prompt();
 };
 </script>
 </body>
 </html>
+
