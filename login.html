@@ -1,42 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Inventario — Login</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Inventario</title>
   <link rel="stylesheet" href="styles.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
-  <main class="container">
-    <h1>Iniciar sesión</h1>
-    <p>Usa tu cuenta Google para acceder al panel de inventario.</p>
+  <div class="container" style="max-width: 400px; text-align: center; margin-top: 80px;">
+    <h1 style="margin-bottom: 24px; color:#0b63d6;">Inventario</h1>
+    <p style="margin-bottom: 32px; color:#555;">Inicia sesión con tu cuenta de Google</p>
 
-    <div id="buttonDiv"></div>
+    <!-- Google Sign-In button -->
+    <div id="g_id_onload"
+         data-client_id="804049595544-tdv9dphuifeudaf9mfhg72r2tpiun80q.apps.googleusercontent.com"
+         data-login_uri="app.html"
+         data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
 
-    <p class="muted">Después de iniciar sesión serás redirigido al panel.</p>
-  </main>
+    <p style="margin-top: 24px; font-size:14px; color:#777;">Solo cuentas autorizadas de la organización</p>
+  </div>
+</body>
+</html>
 
-<script>
-const CLIENT_ID = "804049595544-tdv9dphuifeudaf9mfhg72r2tpiun80q.apps.googleusercontent.com";
-
-function handleCredentialResponse(response) {
-  // Guarda el JWT en sessionStorage y redirige
-  sessionStorage.setItem('g_cred', response.credential);
-  window.location.href = 'app.html';
-}
-
-window.onload = () => {
-  google.accounts.id.initialize({
-    client_id: CLIENT_ID,
-    callback: handleCredentialResponse
-  });
-  google.accounts.id.renderButton(
-    document.getElementById('buttonDiv'),
-    { theme: 'outline', size: 'large' } // customization
-  );
-  google.accounts.id.prompt(); // optional
-};
 </script>
 </body>
 </html>
