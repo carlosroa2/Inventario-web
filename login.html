@@ -7,6 +7,7 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="stylesheet" href="styles.css">
   <style>
+    /* Fondo degradado moderno */
     body {
       margin:0;
       font-family: 'Segoe UI', sans-serif;
@@ -17,28 +18,60 @@
       height: 100vh;
       color: #fff;
     }
+
+    /* Contenedor central */
     .container {
-      background: rgba(255,255,255,0.1);
-      padding: 40px;
-      border-radius: 16px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      padding: 50px 40px;
+      border-radius: 20px;
       text-align: center;
-      min-width: 300px;
-      animation: fadeIn 0.7s ease-out;
+      min-width: 320px;
+      max-width: 400px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+      animation: fadeInUp 0.8s ease-out;
     }
+
     h1 {
       margin-bottom: 16px;
-      font-size: 28px;
+      font-size: 30px;
+      letter-spacing: 0.5px;
     }
+
     p {
       margin-bottom: 32px;
-      font-size: 14px;
+      font-size: 15px;
+      line-height: 1.4;
     }
+
     #buttonDiv {
       margin-bottom: 24px;
+      display: flex;
+      justify-content: center;
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(-20px); }
+
+    .muted {
+      font-size: 12px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    /* Animaciones */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive */
+    @media (max-width: 400px) {
+      .container {
+        padding: 30px 20px;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      p {
+        font-size: 14px;
+      }
     }
   </style>
 </head>
@@ -56,7 +89,7 @@
 const CLIENT_ID = "804049595544-tdv9dphuifeudaf9mfhg72r2tpiun80q.apps.googleusercontent.com";
 
 function handleCredentialResponse(response) {
-  // Guarda el JWT y redirige al app.html
+  // Guarda el JWT y redirige al panel
   sessionStorage.setItem('g_cred', response.credential);
   window.location.href = 'app.html';
 }
@@ -75,4 +108,3 @@ window.onload = () => {
 </script>
 </body>
 </html>
-
