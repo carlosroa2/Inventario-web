@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Inventario — Panel</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <strong>Inventario</strong>
+    </div>
+    <div id="user-info"></div>
+  </header>
+
+  <main class="container">
+    <div id="access-denied" class="hidden">
+      <h2>Acceso denegado</h2>
+      <p>No tienes permiso para usar esta aplicación.</p>
+      <button onclick="logout()">Volver al login</button>
+    </div>
+
+    <div id="app-ui" class="hidden">
+      <section class="controls">
+        <input id="buscar" placeholder="Buscar por nombre..." oninput="filtrarTabla()" />
+        <button onclick="cargarInventario()">Actualizar</button>
+      </section>
+
+      <section class="add-form">
+        <h3>Agregar producto</h3>
+        <input id="new-nombre" placeholder="Nombre" />
+        <input id="new-categoria" placeholder="Categoría" />
+        <input id="new-cantidad" type="number" placeholder="Cantidad" />
+        <input id="new-precio" type="number" step="0.01" placeholder="Precio" />
+        <button onclick="agregarProducto()">Agregar</button>
+      </section>
+
+      <table id="tabla">
+        <thead>
+          <tr>
+            <th>ID</th><th>Nombre</th><th>Categoría</th><th>Cantidad</th><th>Precio</th><th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwWAzJu4qAPv0NjaUsFCFF7asR0yYfNsDijtgOxr5AqzMYYI0I9ZK-F-HmQB-UlpLuvhw/exec";
+
+// Lista de correos permitidos. Si la dejas vacía [], cualquier usuario puede entrar.
+// Pon aquí tus correos si quieres restringir el acceso.
+const PERMITIDOS = []; // Ej: ['tu@gmail.com']
+
+function parseJwt(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch(e) {
+    return null;
+  }
+}
+
+function logout() {
+  sessionStorage.removeItem('g_cred');
+  window.location.href = 'login.html';
+}
+
+function showAccessDenied() {
+  document.getElementById('access-denied').classList.remove('hidden');
+  document.getElementById('app-ui').classList.add('hidden');
+}
+
+function showAppUI() {
+  document.getElementById('access-denied').classList.add('hidden');
+  document.getElementById('app-ui').classList.remove('hidden');
+}
+
+function checkAuth() {
+  const cred = sessionStorage.getItem('g_cred');
+  if (!cred) {
+    window.location.href = 'login.html';
+    return;
+  }
+  const info = parseJwt(cred);
+  if (!info || !info.email) {
+    logout();
+    return;
+  }
+
+  // Mostrar correo
+  document.getElementById('user-info').innerHTML =
+    '<span class="email">' + info.email + '</span> <button onclick="logout()">Cerrar sesión</button>';
+
+  // Si hay una lista de permitidos, verificarla
+  if (PERMITIDOS.length > 0 && PERMITIDOS.indexOf(info.email) === -1) {
+    showAccessDenied();
+    return;
+  }
+
+  showAppUI();
+  cargarInventario();
+}
+
+async function cargarInventario() {
+  try {
+    const res = await fetch(API_URL);
+    const productos = await res.json();
+    renderTabla(productos);
+  } catch (err) {
+    console.error(err);
+    alert('Error al cargar inventario: ' + err.message);
+  }
+}
+
+function renderTabla(productos) {
+  const tbody = document.querySelector('#tabla tbody');
+  tbody.innerHTML = '';
+  productos.forEach(p => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = 
+      '<td>' + p.ID + '</td>' +
+      '<td>' + p.Nombre + '</td>' +
+      '<td>' + p.Categoria + '</td>' +
+      '<td>' + p.Cantidad + '</td>' +
+      '<td>' + p.Precio + '</td>' +
+      '<td>' +
+        '<button onclick="editarProducto(\'' + p.ID + '\')">Editar</button> ' +
+        '<button onclick="eliminarProducto(\'' + p.ID + '\')">Eliminar</button>' +
+      '</td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function filtrarTabla() {
+  const filtro = document.getElementById('buscar').value.toLowerCase();
+  const filas = document.querySelectorAll('#tabla tbody tr');
+  filas.forEach(row => {
+    const nombre = row.children[1].textContent.toLowerCase();
+    row.style.display = nombre.includes(filtro) ? '' : 'none';
+  });
+}
+
+function generarID() {
+  return 'id-' + Date.now().toString(36);
+}
+
+async function agregarProducto() {
+  const nombre = document.getElementById('new-nombre').value.trim();
+  const categoria = document.getElementById('new-categoria').value.trim();
+  const cantidad = parseInt(document.getElementById('new-cantidad').value) || 0;
+  const precio = parseFloat(document.getElementById('new-precio').value) || 0;
+
+  if (!nombre) { alert('Nombre requerido'); return; }
+
+  const id = generarID();
+  const body = {
+    action: 'add',
+    ID: id,
+    Nombre: nombre,
+    Cantidad: cantidad,
+    Precio: precio,
+    Categoria: categoria
+  };
+
+  await postBody(body);
+  cargarInventario();
+
+  // limpiar
+  document.getElementById('new-nombre').value = '';
+  document.getElementById('new-categoria').value = '';
+  document.getElementById('new-cantidad').value = '';
+  document.getElementById('new-precio').value = '';
+}
+
+async function editarProducto(id) {
+  const nuevoNombre = prompt('Nombre nuevo:');
+  if (nuevoNombre === null) return;
+  const nuevaCategoria = prompt('Categoría nueva:');
+  if (nuevaCategoria === null) return;
+  const nuevaCantidad = prompt('Cantidad nueva:');
+  if (nuevaCantidad === null) return;
+  const nuevoPrecio = prompt('Precio nuevo:');
+  if (nuevoPrecio === null) return;
+
+  const body = {
+    action: 'update',
+    ID: id,
+    Nombre: nuevoNombre,
+    Cantidad: parseInt(nuevaCantidad) || 0,
+    Precio: parseFloat(nuevoPrecio) || 0,
+    Categoria: nuevaCategoria
+  };
+
+  await postBody(body);
+  cargarInventario();
+}
+
+async function eliminarProducto(id) {
+  if (!confirm('Confirmar eliminar producto ' + id + '?')) return;
+  const body = { action: 'delete', ID: id };
+  await postBody(body);
+  cargarInventario();
+}
+
+async function postBody(body) {
+  try {
+    const res = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (data.message) {
+      console.log(data.message);
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Error en la petición: ' + err.message);
+  }
+}
+
+document.addEventListener('DOMContentLoaded', checkAuth);
+</script>
+</body>
+</html>
